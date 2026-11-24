@@ -74,8 +74,8 @@ button:focus-visible,input:focus-visible{outline:.3cqw solid var(--gold2); outli
 #setup .sound{position:absolute; right:2cqw; top:2cqw}
 .glass{
   position:absolute; left:50%; transform:translateX(-50%); top:1.5cqw; width:74cqw; height:54cqw; box-sizing:border-box;
-  background:rgba(9,22,56,.78); border:.35cqw solid var(--gold); border-radius:2.4cqw; padding:1.6cqw 3cqw;
-  backdrop-filter:blur(.6cqw); display:flex; flex-direction:column; gap:1.1cqw;
+  background:rgba(9,22,56,.78); border:.35cqw solid var(--gold); border-radius:2.4cqw; padding:1.2cqw 3cqw;
+  backdrop-filter:blur(.6cqw); display:flex; flex-direction:column; gap:.8cqw;
   box-shadow:0 1.2cqw 4cqw rgba(0,0,0,.5);
 }
 .glass h2{margin:0; text-align:center; font-size:2.7cqw; color:var(--gold2); letter-spacing:.05cqw}
@@ -96,7 +96,7 @@ button:focus-visible,input:focus-visible{outline:.3cqw solid var(--gold2); outli
 .teams label{flex:1; display:block}
 .teams input{width:100%; box-sizing:border-box; height:4.6cqw; border-radius:1.2cqw; border:.3cqw solid #5f7fc4; background:#0a1a40; color:#fff; font:600 2cqw var(--display); padding:0 1.4cqw}
 .teams .ta input{border-color:var(--a)} .teams .tb input{border-color:var(--b)}
-#startBtn{align-self:center; height:6cqw; width:30cqw; font-size:2.8cqw; margin-top:auto}
+#startBtn{align-self:center; height:5.4cqw; width:30cqw; font-size:2.8cqw; margin-top:auto}
 
 /* GAME */
 #game .top{position:absolute; left:0; right:0; top:0; height:8cqw; display:flex; align-items:center; justify-content:space-between; padding:0 2cqw}
@@ -209,7 +209,11 @@ button:focus-visible,input:focus-visible{outline:.3cqw solid var(--gold2); outli
 .nm[data-t="1"]{background:var(--b); border-color:#ffffffaa}
 .hintrow{display:flex; justify-content:space-between; align-items:center; gap:1cqw}
 #editRoster{height:2.5cqw; padding:0 1.6cqw; font-size:1.2cqw; flex:none}
-#pathRow{display:none}
+.startrow{display:flex; align-items:center; gap:1.2cqw}
+.startrow .lbl{margin:0; white-space:nowrap}
+.startrow .row{flex:1; gap:.8cqw}
+.schip{flex:1; height:3.3cqw; font-size:1.55cqw; font-weight:600; border-radius:1.2cqw; border:.25cqw solid #5f7fc4; background:linear-gradient(#27468c,#142a5c)}
+.schip[aria-pressed="true"]{border-color:var(--gold); background:linear-gradient(#4d86ff,#1f4fc0); box-shadow:0 0 1.2cqw rgba(255,226,130,.5)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
 </style>
 
@@ -237,7 +241,7 @@ button:focus-visible,input:focus-visible{outline:.3cqw solid var(--gold2); outli
     <div class="glass">
       <h2 id="setupTitle">Grade 4 · Get Your Teams Ready</h2>
       <div id="classBlock"><div class="lbl">Class</div><div class="row" id="classRow"></div></div>
-      <div class="path" id="pathRow"></div>
+      <div class="startrow"><div class="lbl">Start from</div><div class="row" id="startRow"></div></div>
       <div class="tnames">
         <label class="tn2 ta"><div class="lbl">Team A name · <span id="cntA">0</span> students</div><input id="nameA" value="Team A" maxlength="14" autocomplete="off"></label>
         <label class="tn2 tb"><div class="lbl">Team B name · <span id="cntB">0</span> students</div><input id="nameB" value="Team B" maxlength="14" autocomplete="off"></label>
@@ -283,6 +287,8 @@ WORLDS[6]=[
  {id:"chain", title:"Food Chains", sub:"Wild Savanna", bg:"chain.jpg", icons:["🌿","🦓","🦁","🦅","🏆"], thumb:"chain.jpg", scrim:.1}
 ];
 var CLASSES = {4:["4A","4B","4C"],6:null};
+WORLDS[4].push({id:"final4", title:"Final Round", sub:"Grand Finale", bg:"title.jpg", icons:["⭐","🔥","⚡","👑","🏆"], thumb:null, art:"🏆", grad:"linear-gradient(135deg,#f6c453,#c4800f)", scrim:.75, final:true});
+WORLDS[6].push({id:"final6", title:"Final Round", sub:"Grand Finale", bg:"title.jpg", icons:["⭐","🔥","⚡","👑","🏆"], thumb:null, art:"🏆", grad:"linear-gradient(135deg,#f6c453,#c4800f)", scrim:.75, final:true});
 /* correct answer is always the first option; options are shuffled per team */
 var Q = {
 plant:[
@@ -377,7 +383,55 @@ Q.chain=[
  {q:"In a food chain, the arrows show the direction of…",o:["Energy flow","Wind","Water","Sunlight only"],d:2},
  {q:"In the savanna picture, which animals are herbivores?",o:["The zebra and the gazelle","The lion and the eagle","The lion and the zebra","The eagle and the gazelle"],d:2}
 ];
-var PER_ROUND = 20, PTS = 10;
+Q.final4=[
+ {c:"Plant Life Cycle",q:"Which part carries water from the roots up to the leaves?",o:["Stem","Root","Flower","Seed"],d:1},
+ {c:"Plant Life Cycle",q:"Which part holds the plant firmly in the soil?",o:["Roots","Leaves","Flowers","Fruit"],d:1},
+ {c:"Light",q:"Sunlight collects at one very hot spot when we use a…",o:["Magnifying glass","Mirror","Thermometer","Sundial"],d:1},
+ {c:"Light",q:"Which surface reflects light in one direction only?",o:["A mirror","A rough wall","A piece of cloth","A tree trunk"],d:1},
+ {c:"Plant Life Cycle",q:"Which is NOT one of the plant's three main parts?",o:["Seed","Root","Stem","Leaves"],d:2},
+ {c:"Light",q:"Which is an example of a rough surface that scatters light?",o:["A rough wall","A mirror","A shiny metal plate","Calm still water"],d:2},
+ {c:"Plant Life Cycle",q:"What are the two main jobs of the roots?",o:["Hold the plant and absorb water","Capture sunlight and make seeds","Carry water and make flowers","Make fruit and hold leaves"],d:2},
+ {c:"Light",q:"At noon, the shadow of a pole in the school yard is…",o:["Very short, right under the pole","Very long to the west","Very long to the east","Missing"],d:2},
+ {c:"Plant Life Cycle",q:"Which leaf shape captures the most sunlight?",o:["Broad and flat","Thin and curled","Small and round","Narrow and tiny"],d:2},
+ {c:"Light",q:"Early in the morning, the shadow of a pole in the school yard is…",o:["Long","Very short","Missing","Right under the pole"],d:2},
+ {c:"Plant Life Cycle",q:"A strong wind blows. Which part helps the plant stay in place?",o:["Roots","Flowers","Leaves","Fruit"],d:2},
+ {c:"Light",q:"A sundial tells the time by using…",o:["The changing position of a shadow","The temperature of the ground","A mirror","A magnifying glass"],d:2},
+ {c:"Plant Life Cycle",q:"Which stage comes between the formation of buds and fruit production?",o:["Flowers bloom","A seed falls","Growth of the stem","Seed leaves open"],d:2},
+ {c:"Light",q:"Compared with sunny ground, ground in a shaded place is usually…",o:["More humid","Hotter","Drier","Brighter"],d:2},
+ {c:"Plant Life Cycle",q:"The stem supports the plant and also…",o:["Carries water to the leaves","Absorbs salts from the soil","Captures sunlight","Makes seeds"],d:1},
+ {c:"Light",q:"If the clouds disappear and the sky is clear and sunny, shadows on the ground become…",o:["Clearer and darker","Fainter","Invisible","Always longer than the object"],d:2},
+ {c:"Plant Life Cycle",q:"Which part of a plant is mostly found under the soil?",o:["Roots","Stem","Leaves","Flowers"],d:1},
+ {c:"Light",q:"An infrared thermometer measures the temperature…",o:["Of a surface without touching it","Only of water","Only inside the body","Of the Sun directly"],d:2},
+ {c:"Plant Life Cycle",q:"Which order shows the plant growth stages correctly?",o:["Stem and leaves → Buds → Flowers → Fruit","Buds → Stem and leaves → Fruit → Flowers","Flowers → Buds → Fruit → Stem and leaves","Fruit → Flowers → Buds → Stem and leaves"],d:3},
+ {c:"Light",q:"As the Sun appears to move from East to West, the shadow moves from…",o:["West to East","East to West","North to South","It does not move"],d:3}
+];
+Q.final6=[
+ {c:"Food Chains",q:"Most food chains start with…",o:["Green plants","Herbivores","Carnivores","Predators"],d:1},
+ {c:"Body Systems",q:"Which organ pumps blood carrying oxygen and nutrients to all body organs?",o:["The heart","The kidney","The bladder","The liver"],d:1},
+ {c:"Transpiration",q:"Which part of the plant absorbs the water that later leaves through the stomata?",o:["Roots","Flowers","Fruits","Seeds"],d:1},
+ {c:"Photosynthesis",q:"Sunlight is necessary for the formation of ______ in the leaves.",o:["Starch","Salt","Ethanol","Iodine"],d:1},
+ {c:"Food Chains",q:"A consumer is a living thing that…",o:["Eats other living things","Makes its own food","Gives off oxygen","Lives only in water"],d:1},
+ {c:"Body Systems",q:"Nutrients absorbed in the small intestine are carried to the body organs by the…",o:["Blood","Urine","Air","Bladder"],d:1},
+ {c:"Transpiration",q:"What happens to a plant that does not get enough water?",o:["It wilts","It grows taller","It makes more starch","Nothing changes"],d:1},
+ {c:"Photosynthesis",q:"Which substances does a plant need for photosynthesis?",o:["Carbon dioxide, water and sunlight","Oxygen, sugar and salt","Starch, ethanol and iodine","Oxygen, water and wind"],d:2},
+ {c:"Food Chains",q:"An animal that hunts other animals is called a…",o:["Predator","Producer","Herbivore","Plant"],d:1},
+ {c:"Body Systems",q:"Which two organs both help protect the body by removing wastes and harmful substances?",o:["The liver and the kidneys","The heart and the lungs","The bladder and the stomach","The skin and the bones"],d:2},
+ {c:"Transpiration",q:"A plant's roots stand in colored water for several hours. What happens?",o:["The colored water moves up the stem into the leaves","The roots turn into leaves","The leaves stop making food","The plant releases colored vapor"],d:2},
+ {c:"Photosynthesis",q:"Why should we plant more trees along streets?",o:["They take in carbon dioxide and release oxygen","They give off carbon dioxide only","They stop the wind completely","They make the soil hotter"],d:2},
+ {c:"Food Chains",q:"Energy is passed from one organism to another until…",o:["The end of the food chain","The plant disappears","The Sun sets","The animal sleeps"],d:2},
+ {c:"Body Systems",q:"After the heart pumps blood to the body organs, the blood…",o:["Returns to the heart","Turns into urine","Stays in the bladder","Stops moving"],d:2},
+ {c:"Transpiration",q:"Which statement is about WATER TRANSPORT and not transpiration?",o:["Water moves from the roots through the stem to the leaves","Water vapor leaves through the stomata","Droplets form inside the bag","Leaves lose water to the air"],d:3},
+ {c:"Photosynthesis",q:"Which process happens only in sunlight?",o:["Photosynthesis","Respiration","Digestion","Excretion"],d:2},
+ {c:"Food Chains",q:"In the chain Green plant → Mouse → Snake → Falcon, which is the top consumer?",o:["The falcon","The snake","The mouse","The green plant"],d:2},
+ {c:"Body Systems",q:"Blood vessels are the basis for the coordinated work of organs because they…",o:["Carry blood, oxygen and nutrients to every organ","Store urine","Filter wastes from the blood","Break down food"],d:3},
+ {c:"Transpiration",q:"All the leaves are removed from a plant, and it is covered with a plastic bag. What happens?",o:["Almost no water droplets appear in the bag","Many water droplets appear","The bag turns red","The plant makes more starch"],d:3},
+ {c:"Photosynthesis",q:"After adding iodine, a leaf covered with aluminum foil stays brown because…",o:["It had no sunlight, so it made no starch","It had too much water","It made extra oxygen","It absorbed the iodine"],d:3},
+ {c:"Food Chains",q:"An animal that eats meat is called a…",o:["Carnivore","Herbivore","Producer","Plant"],d:1},
+ {c:"Photosynthesis",q:"Why does the percentage of carbon dioxide inside the bag decrease in sunlight?",o:["The plant uses it for photosynthesis","The bag absorbs it","The soil releases oxygen","The plant stops breathing"],d:3},
+ {c:"Transpiration",q:"In the transpiration experiment, which step comes first?",o:["Place a plastic bag around the plant","Observe water droplets","Expose the plant to sunlight","Wait for the leaves to fall"],d:2},
+ {c:"Body Systems",q:"The kidneys and the bladder belong to which body system?",o:["The excretory system","The circulatory system","The respiratory system","The digestive system"],d:2}
+];
+var PER_ROUND = 30, PTS = 10;
 function NQ(){return Math.min(PER_ROUND,Q[S.world].length)}
 
 /* ---------- helpers ---------- */
@@ -474,7 +528,8 @@ function openSetup(g){
     cb.hidden=false;if(cl.indexOf(S.cls)<0)S.cls=cl[0];
     cl.forEach(function(c){var b=document.createElement("button");b.className="chip";b.textContent=c;b.setAttribute("aria-pressed",c===S.cls);b.addEventListener("click",function(){S.cls=c;SFX.click();$$(".chip",cr).forEach(function(x){x.setAttribute("aria-pressed",x.textContent===c)});resetPicks()});cr.appendChild(b)});
   }else{cb.hidden=true;S.cls=""}
-  $("#pathRow").innerHTML="Stages, in order: "+ws.map(function(w,i){return '<b>'+(i+1)+'</b> '+esc(w.title)}).join(" → ");
+  S.startIdx=0;var sr=$("#startRow");sr.innerHTML="";
+  ws.forEach(function(w,i){var b=document.createElement("button");b.type="button";b.className="schip";b.textContent=w.final?"Final":"Stage "+(i+1);b.setAttribute("aria-pressed",i===0);b.addEventListener("click",function(){S.startIdx=i;SFX.click();$$(".schip",sr).forEach(function(x,j){x.setAttribute("aria-pressed",j===i)})});sr.appendChild(b)});
   resetPicks();
   setBg("light.jpg",.5); show("setup");
 }
@@ -483,14 +538,14 @@ $("#setupBack").addEventListener("click",function(){SFX.click();goHome()});
 $("#startBtn").addEventListener("click",function(){
   ac();SFX.click();S.members=pickedNames();
   S.names=[($("#nameA").value||"Team A").trim()||"Team A",($("#nameB").value||"Team B").trim()||"Team B"];
-  beginRun(WORLDS[S.grade][0].id);
+  beginRun(WORLDS[S.grade][S.startIdx||0].id);
 });
 
 /* ---------- game ---------- */
 function curWorld(){return WORLDS[S.grade].filter(function(w){return w.id===S.world})[0]}
 function newTeam(){
   var qs=shuffle(Q[S.world]).slice(0,NQ()).map(function(q){
-    var idx=shuffle([0,1,2,3]);return {q:q.q,d:q.d,o:idx.map(function(i){return q.o[i]}),a:idx.indexOf(0)}});
+    var idx=shuffle([0,1,2,3]);return {q:q.q,c:q.c,d:q.d,o:idx.map(function(i){return q.o[i]}),a:idx.indexOf(0)}});
   return {qs:qs,i:0,correct:0,streak:0,best:0,hard:0,done:null,locked:false};
 }
 function beginRun(wid){
@@ -522,7 +577,7 @@ function renderPanel(ti){
   var q=T.qs[Math.min(T.i,NQ()-1)];
   var stars=new Array(q.d+1).join("★");
   var html='<div class="phead"><div class="tname">'+esc(name)+'</div></div>'+
-   '<div class="qcard"><div class="qmeta"><span>QUESTION '+(T.i+1)+' / '+NQ()+'</span><span aria-label="difficulty">'+stars+'</span></div><div class="qtext">'+esc(q.q)+'</div></div>'+
+   '<div class="qcard"><div class="qmeta"><span>QUESTION '+(T.i+1)+' / '+NQ()+'</span><span aria-label="difficulty">'+(q.c?esc(q.c)+' · ':'')+stars+'</span></div><div class="qtext">'+esc(q.q)+'</div></div>'+
    '<div class="opts">'+q.o.map(function(o,k){return '<button class="opt" data-k="'+k+'"><span class="ltr">'+"ABCD".charAt(k)+'</span><span>'+esc(o)+'</span></button>'}).join("")+'</div>'+
    '<div class="prog">'+w.icons.map(function(ic,k){return '<span class="'+(T.i>=Math.ceil(NQ()*[.1,.3,.5,.7,.9][k])?"on":"")+'">'+ic+'</span>'+(k<4?'<i></i>':'')}).join("")+'</div>'+
    '<div class="done" id="dn'+ti+'" hidden></div>';
@@ -575,10 +630,29 @@ function showResult(){
   if(nx)stageDone(nx);else finalResult();
 }
 function stageDone(nx){
-  var box=$("#result");
-  box.innerHTML='<h2>You finished the '+ORD[Math.min(S.stageNo-1,4)]+' stage!</h2><div class="why">Let\'s move to the next stage: '+esc(nx.title)+' · '+esc(nx.sub)+'</div><div class="btns"><button class="gbtn g-gold" id="nextW">Start the next stage ▶</button></div>';
+  var ws=WORLDS[S.grade],wi=ws.map(function(w){return w.id}).indexOf(S.world);
+  var box=$("#result");stopConfetti();
+  box.innerHTML='<h2>You finished the '+ORD[Math.min(wi,4)]+' stage!</h2><div class="why">Let\'s move to the next stage: '+esc(nx.title)+' · '+esc(nx.sub)+'</div><div class="btns"><button class="gbtn g-gold" id="nextW">Start the next stage ▶</button><button class="gbtn g-navy" id="showW">Show winner so far</button></div>';
   $("#resultOv").hidden=false;
   $("#nextW").addEventListener("click",function(){SFX.click();hideOv();S.world=nx.id;startGame()});
+  $("#showW").addEventListener("click",function(){SFX.click();standing(nx)});
+}
+function standing(nx){
+  var r=compare(),A=S.acc[0],B=S.acc[1],n=S.names,tot=S.totalQ;
+  var title=r.w<0?"It's a tie so far!":(n[r.w]+" is winning!");
+  var why=r.w<0?"Scores, time, streak and hard questions are equal so far.":"Ahead with "+r.why+".";
+  function row(l,x,y,wx,wy){return '<div class="h">'+l+'</div><div class="'+(wx?"win":"")+'">'+x+'</div><div class="'+(wy?"win":"")+'">'+y+'</div>'}
+  var box=$("#result");
+  box.innerHTML='<div class="trophy">'+(r.w<0?"🤝":"🏆")+'</div><h2>'+esc(title)+'</h2><div class="why">'+esc(why)+'</div>'+
+   '<div class="rtable"><div></div><div class="A">'+esc(n[0])+'</div><div class="B">'+esc(n[1])+'</div>'+
+   row("Correct",A.c+" / "+tot,B.c+" / "+tot,A.c>B.c,B.c>A.c)+
+   row("Total time",fmt(A.t),fmt(B.t),A.t<B.t,B.t<A.t)+
+   row("Best streak",A.b,B.b,A.b>B.b,B.b>A.b)+
+   row("Hard right ★★★",A.h,B.h,A.h>B.h,B.h>A.h)+'</div>'+
+   '<div class="btns"><button class="gbtn g-gold" id="nextW2">Start the next stage ▶</button><button class="gbtn g-navy" id="backW">Back</button></div>';
+  $("#nextW2").addEventListener("click",function(){SFX.click();hideOv();S.world=nx.id;startGame()});
+  $("#backW").addEventListener("click",function(){SFX.click();stageDone(nx)});
+  if(r.w>=0){SFX.win();burst()}
 }
 function finalResult(fw,fwhy){
   var forced=(fw!==undefined),r=forced?{w:fw,why:fwhy}:compare(),A=S.acc[0],B=S.acc[1],n=S.names,tot=S.totalQ;
